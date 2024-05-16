@@ -15,8 +15,6 @@ services:
       context: .
       dockerfile: ./.docker/php/Dockerfile
       target: dev
-    ports:
-      - "3150:3150"
     environment:
       SERVER_NAME: ":80"
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
@@ -37,9 +35,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.network=traefik"
-      - "traefik.http.routers.php-sf-franken.rule=Host(`sf-franken.web.localhost`)"
-      - "traefik.http.routers.php-sf-franken.tls=true"
-      - "traefik.http.services.php-sf-franken.loadbalancer.server.port=80"
+      - "traefik.http.routers.php-poc-automapper.rule=Host(`poc-automapper.web.localhost`)"
+      - "traefik.http.routers.php-poc-automapper.tls=true"
+      - "traefik.http.services.php-poc-automapper.loadbalancer.server.port=80"
     networks:
       - database
       - traefik
@@ -55,7 +53,7 @@ services:
   mariadb:
     image: mariadb:10.5
     ports:
-      - "3350:3306"
+      - "3351:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
@@ -73,9 +71,9 @@ services:
       - ./:/docs
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.mkdocs.rule=Host(`mkdocs.web.localhost`)"
-      - "traefik.http.routers.mkdocs.tls=true"
-      - "traefik.http.services.mkdocs.loadbalancer.server.port=8000"
+      - "traefik.http.routers.mkdocs-poc-automapper.rule=Host(`poc-automapper.docs.localhost`)"
+      - "traefik.http.routers.mkdocs-poc-automapper.tls=true"
+      - "traefik.http.services.mkdocs-poc-automapper.loadbalancer.server.port=8000"
     networks:
       - traefik
     profiles:
