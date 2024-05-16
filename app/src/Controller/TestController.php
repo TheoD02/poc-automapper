@@ -45,10 +45,10 @@ class TestController extends AbstractController
             $array[] = $autoMapper->map($object, 'array');
         }
 
-        $newObjects = $autoMapper->map($array, ComplexObject::class . '[]');
+        $newObjects = array_map(fn($item) => $autoMapper->map($item, ComplexObject::class), $array);
 //        $newObjects = $denormalizer->denormalize($array, ComplexObject::class . '[]');
 
 
-        return $this->json($objects);
+        return $this->json($newObjects);
     }
 }
