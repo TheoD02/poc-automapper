@@ -1,0 +1,23 @@
+{
+  "name": "theod02/franken-base",
+  "authors": [
+    {
+      "name": "Theo D",
+      "email": "theo.d02290@gmail.com"
+    }
+  ],
+  "require": {
+    "theod02/castor-class-task": "dev-main",
+    "theod02/castor-docker": "dev-main"
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/TheoD02/castor-class-task.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/TheoD02/castor-docker.git"
+    }
+  ]
+}

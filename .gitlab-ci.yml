@@ -1,0 +1,100 @@
+image: shinsenter/php:8.3-frankenphp
+
+variables:
+  MYSQL_ROOT_PASSWORD: "root"
+
+services:
+  - mariadb:10.5.24
+
+stages:
+  - test
+  - deploy-docs
+
+symfony:
+  stage: test
+  before_script:
+    - apt-get update -yqq
+    - apt-get install -yqq unzip git libicu-dev
+    - composer config --global cache-dir "$(pwd)/.composer-cache"
+  cache:
+    paths:
+      - .composer-cache/
+  script:
+    - cd app
+    - composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - tools_dirs=$(find $CI_PROJECT_DIR/tools -maxdepth 1 -type d -exec test -e "{}/composer.json" \; -print)
+    - for dir in $tools_dirs; do cd $dir && composer install -q --no-ansi --no-interaction --no-scripts --no-progress; done
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - app/vendor/
+      - tools/**/vendor/
+  only:
+    - master
+
+composer_check:
+  stage: test
+  needs: ["symfony"]
+  script:
+    - cd app
+    - composer validate
+    - composer normalize --dry-run
+  only:
+    - master
+
+phpunit:
+  stage: test
+  needs: ["symfony"]
+  before_script:
+    - phpaddmod pcov
+  script:
+    - cd app
+    - php bin/console doctrine:database:create --env=test
+    - ./vendor/bin/phpunit --coverage-clover=coverage.xml
+  artifacts:
+    paths:
+      - app/coverage.xml
+  only:
+    - master
+
+ecs:
+  stage: test
+  needs: ["symfony"]
+  script:
+    - cd app
+    - $CI_PROJECT_DIR/tools/ecs/vendor/bin/ecs check --config $CI_PROJECT_DIR/tools/ecs.php
+  only:
+    - master
+
+rector:
+  stage: test
+  needs: ["symfony"]
+  script:
+    - cd app
+    - $CI_PROJECT_DIR/tools/rector/vendor/bin/rector --dry-run --clear-cache --config=$CI_PROJECT_DIR/tools/rector.php
+  only:
+    - master
+
+phpstan:
+  stage: test
+  needs: ["symfony"]
+  script:
+    - cd app
+    - php bin/console cache:clear
+    - $CI_PROJECT_DIR/tools/phpstan/vendor/bin/phpstan analyse --configuration $CI_PROJECT_DIR/tools/phpstan.neon --memory-limit=1G
+  only:
+    - master
+
+pages:
+  stage: deploy-docs
+  image: python:latest
+  needs: []
+  script:
+    - pip install mkdocs-material
+    - pip install markdown-callouts
+    - mkdocs build --site-dir public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

@@ -1,0 +1,21 @@
+automapper:
+  class_prefix: "Symfony_Mapper_"
+  constructor_strategy: 'auto'
+  check_attributes: true
+  auto_register: true
+  map_private_properties: true
+  allow_readonly_target_to_populate: false
+  normalizer:
+    enabled: false
+    only_registered_mapping: false
+    priority: 1000
+  loader:
+    eval: false
+    cache_dir: "%kernel.cache_dir%/automapper"
+    reload_strategy: "always"
+  serializer_attributes: true
+  api_platform: false
+  name_converter: null
+  mapping:
+    paths:
+      - "%kernel.project_dir%/src/Dto"

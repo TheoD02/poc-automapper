@@ -1,0 +1,98 @@
+x-worker-template:
+  worker_template: &worker_template
+    build:
+      context: .
+      dockerfile: ./.docker/php/Dockerfile
+      target: worker-dev
+    volumes:
+      - ./app:/app
+    profiles:
+      - worker
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./.docker/php/Dockerfile
+      target: dev
+    ports:
+      - "3150:3150"
+    environment:
+      SERVER_NAME: ":80"
+      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      TRUSTED_HOSTS: ^${SERVER_NAME:-example\.com|localhost}|php$$
+      # Run "composer require symfony/mercure-bundle" to install and configure the Mercure integration
+      MERCURE_URL: ${CADDY_MERCURE_URL:-http://php/.well-known/mercure}
+      MERCURE_PUBLIC_URL: https://${SERVER_NAME:-localhost}/.well-known/mercure
+      MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+    volumes:
+      - ./app:/app
+      - ./tools:/tools
+      - ./.castor:/.castor
+      - ~/.ssh:/home/www-data/.ssh:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.network=traefik"
+      - "traefik.http.routers.php-sf-franken.rule=Host(`sf-franken.web.localhost`)"
+      - "traefik.http.routers.php-sf-franken.tls=true"
+      - "traefik.http.services.php-sf-franken.loadbalancer.server.port=80"
+    networks:
+      - database
+      - traefik
+    profiles:
+      - app
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  #scheduler:
+  #  <<: *worker_template
+  #  command: php /app/bin/console messenger:consume scheduler_default -vv
+
+  mariadb:
+    image: mariadb:10.5
+    ports:
+      - "3350:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mariadb:/var/lib/mysql
+    profiles:
+      - app
+    networks:
+      - database
+
+  mkdocs:
+    build:
+      dockerfile: ./.docker/mkdocs/Dockerfile
+      context: .
+    volumes:
+      - ./:/docs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mkdocs.rule=Host(`mkdocs.web.localhost`)"
+      - "traefik.http.routers.mkdocs.tls=true"
+      - "traefik.http.services.mkdocs.loadbalancer.server.port=8000"
+    networks:
+      - traefik
+    profiles:
+      - app
+
+networks:
+  database:
+  traefik:
+    external: true
+
+# Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###
+
+volumes:
+  caddy_data:
+  caddy_config:
+  mariadb:
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###
