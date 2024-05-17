@@ -11,6 +11,7 @@ use function Castor\context;
 use function Castor\finder;
 use function Castor\fingerprint_exists;
 use function Castor\fs;
+use function Castor\input;
 use function Castor\io;
 use function Castor\request;
 use function TheoD02\Castor\Docker\docker;
@@ -32,7 +33,7 @@ function check_docker_is_running(BeforeExecuteTaskEvent $event): void
     }
 
     $context = context()->withQuiet();
-    if (str_contains(docker($context)->compose()->ps()->getOutput(), 'franken-base-app-1') === false) {
+    if (str_contains(docker($context)->compose()->ps()->getOutput(), 'poc-automapper-app-1') === false) {
         io()->note('Docker containers are not running. Starting them.');
         start();
     }
@@ -42,6 +43,9 @@ function check_docker_is_running(BeforeExecuteTaskEvent $event): void
 #[AsListener(AfterExecuteTaskEvent::class, priority: 800)]
 function check_symfony_installation(BeforeExecuteTaskEvent|AfterExecuteTaskEvent $event): void
 {
+    if (input()->hasOption('no-check') && input()->getOption('no-check') === true) {
+        return;
+    }
     if ($event instanceof BeforeExecuteTaskEvent && in_array($event->task->getName(), ['start'], true)) {
         return;
     }
@@ -94,6 +98,9 @@ function check_symfony_installation(BeforeExecuteTaskEvent|AfterExecuteTaskEvent
 #[AsListener(AfterExecuteTaskEvent::class, priority: 800)]
 function check_projects_deps(BeforeExecuteTaskEvent|AfterExecuteTaskEvent $event): void
 {
+    if (input()->hasOption('no-check') && input()->getOption('no-check') === true) {
+        return;
+    }
     if ($event instanceof BeforeExecuteTaskEvent && in_array($event->task->getName(), ['start', 'stop', 'restart', 'install'], true)) {
         return;
     }

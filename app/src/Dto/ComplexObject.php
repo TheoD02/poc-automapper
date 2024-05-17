@@ -1,28 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Dto;
 
 class ComplexObject
 {
-    private string $name;
-    private int $age;
-    private string $address;
+    private string $name = '';
+
+    private int $age = 0;
+
+    private string $address = '';
 
     private EmbedObject $embedObject;
 
     /**
      * @var array<EmbedObject>
      */
-    private array $arrayOfEmbedObjects;
+    private array $arrayOfEmbedObjects = [];
+
+    public function __construct()
+    {
+        $this->embedObject = new EmbedObject();
+    }
 
     public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName(string $name): ComplexObject
+    public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -31,9 +41,10 @@ class ComplexObject
         return $this->age;
     }
 
-    public function setAge(int $age): ComplexObject
+    public function setAge(int $age): self
     {
         $this->age = $age;
+
         return $this;
     }
 
@@ -42,9 +53,10 @@ class ComplexObject
         return $this->address;
     }
 
-    public function setAddress(string $address): ComplexObject
+    public function setAddress(string $address): self
     {
         $this->address = $address;
+
         return $this;
     }
 
@@ -53,9 +65,10 @@ class ComplexObject
         return $this->embedObject;
     }
 
-    public function setEmbedObject(EmbedObject $embedObject): ComplexObject
+    public function setEmbedObject(EmbedObject $embedObject): self
     {
         $this->embedObject = $embedObject;
+
         return $this;
     }
 
@@ -70,9 +83,10 @@ class ComplexObject
     /**
      * @param array<EmbedObject> $arrayOfEmbedObjects
      */
-    public function setArrayOfEmbedObjects(array $arrayOfEmbedObjects): ComplexObject
+    public function setArrayOfEmbedObjects(array $arrayOfEmbedObjects): self
     {
         $this->arrayOfEmbedObjects = $arrayOfEmbedObjects;
+
         return $this;
     }
 }

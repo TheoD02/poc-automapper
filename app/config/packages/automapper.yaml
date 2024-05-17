@@ -4,9 +4,9 @@ automapper:
   check_attributes: true
   auto_register: true
   map_private_properties: true
-  allow_readonly_target_to_populate: false
+  allow_readonly_target_to_populate: true
   normalizer:
-    enabled: false
+    enabled: true
     only_registered_mapping: false
     priority: 1000
   loader:

@@ -54,8 +54,6 @@ CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 
 FROM frankenphp as dev-base
 
-ENV APP_ENV=dev
-
 COPY ./.docker/php/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
 
 # Install fish shell
@@ -73,8 +71,7 @@ RUN apt-get update && apt-get install -y fish
 # Install Xdebug
 RUN set -eux; \
     install-php-extensions \
-#        xdebug \
-        pcov \
+        xdebug \
     ;
 
 RUN echo "xdebug.mode=debug,develop,profile" >> $PHP_INI_DIR/conf.d/.docker-php-ext-xdebug.ini \

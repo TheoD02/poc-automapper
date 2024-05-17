@@ -13,8 +13,8 @@ parameters:
         - %currentWorkingDirectory%/src
     excludePaths:
         - modules/api/src/Resolver/ApiResponseAstResolver.php
-    symfony:
-        containerXmlPath: %currentWorkingDirectory%/var/cache/dev/App_Shared_Infrastructure_Symfony_KernelDevDebugContainer.xml
+#    symfony:
+#        containerXmlPath: %currentWorkingDirectory%/var/cache/dev/App_Shared_Infrastructure_Symfony_KernelDevDebugContainer.xml
     checkAlwaysTrueCheckTypeFunctionCall: true
     checkAlwaysTrueInstanceof: true
     checkAlwaysTrueStrictComparison: true

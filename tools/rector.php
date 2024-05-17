@@ -16,7 +16,7 @@ return RectorConfig::configure()
     ->withCache('/var/tmp/rector')
     ->withPaths([
         '/app/src',
-        '/app/tests',
+//        '/app/tests',
     ])
     ->withRootFiles()
     ->withPhpSets(php83: true)

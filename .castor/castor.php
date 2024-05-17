@@ -62,13 +62,13 @@ function install(bool $force = false): void
     io()->section('QA tools');
     qa()->install();
 
-    io()->section('NPM');
-    $forceNodeModules = $force || ! is_dir(context()->workingDirectory . '/app/node_modules');
-    if (! fingerprint(callback: static fn () => npm()->install(), fingerprint: fgp()->npm(), force: $forceNodeModules || $force)) {
-        io()->note('NPM dependencies are already installed.');
-    }
-
-    npm()->run('build');
+    //    io()->section('NPM');
+    //    $forceNodeModules = $force || ! is_dir(context()->workingDirectory . '/app/node_modules');
+    //    if (! fingerprint(callback: static fn () => npm()->install(), fingerprint: fgp()->npm(), force: $forceNodeModules || $force)) {
+    //        io()->note('NPM dependencies are already installed.');
+    //    }
+    //
+    //    npm()->run('build');
 
     notify('Dependencies installed');
 }
@@ -87,7 +87,7 @@ function ui_dev(): void
 }
 
 #[AsTask]
-function shell(): void
+function shell(bool $noCheck = false): void
 {
     $context = context()->withTty();
     docker($context)->compose()->exec(service: 'app', args: ['fish'], user: 'www-data');
